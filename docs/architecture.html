@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Supporting Ticket System - Architecture Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            background: #f9f9f9;
+            color: #222;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+        }
+
+        .diagram {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Supporting Ticket System - Architecture Overview</h1>
+
+    <h2>1. System Architecture & Main Components</h2>
+    <p>This system is a modern Laravel application, containerized with Docker. It uses Nginx as a reverse proxy, Laravel
+        Octane (with Swoole) for high-performance HTTP handling, and Laravel Reverb for real-time WebSocket
+        communication. Supervisor manages all background processes. Supporting services include MySQL, Redis, Mailhog,
+        RedisInsight, and phpMyAdmin.</p>
+
+    <h2>2. High-Level Architecture</h2>
+    <div class="diagram">
+        <pre class="mermaid">
+flowchart LR
+  Browser["Browser"]
+  Nginx["Nginx"]
+  Octane["Octane (Laravel)"]
+  Reverb["Reverb (WebSocket)"]
+  Horizon["Horizon"]
+  DB["MySQL"]
+  Redis["Redis"]
+  Mailhog["Mailhog"]
+  RedisInsight["RedisInsight"]
+  phpMyAdmin["phpMyAdmin"]
+  Supervisor["Supervisor"]
+
+  Browser -->|HTTP| Nginx
+  Nginx -->|HTTP| Octane
+  Browser -->|WebSocket| Reverb
+  Supervisor --> Octane
+  Supervisor --> Horizon
+  Supervisor --> Reverb
+  Octane -->|DB| DB
+  Octane -->|Cache/Queue| Redis
+  Horizon -->|Queue| Redis
+  RedisInsight -->|monitors| Redis
+  phpMyAdmin -->|manages| DB
+  Octane -->|Mail| Mailhog
+    </pre>
+    </div>
+
+    <h2>3. HTTP Request Flow</h2>
+    <p>When a user accesses the app, their browser sends an HTTP request to <code>supporting-ticket-system.test</code>.
+        Nginx receives the request and proxies it to Octane, which runs the Laravel application. Octane processes the
+        request, interacts with the database, cache, and other services as needed, and returns the response via Nginx to
+        the browser.</p>
+
+    <h2>4. HTTP Request Flow Diagram</h2>
+    <div class="diagram">
+        <pre class="mermaid">
+sequenceDiagram
+  participant B as Browser
+  participant N as Nginx
+  participant O as Octane (Laravel)
+  B->>N: HTTP Request
+  N->>O: Proxy HTTP Request
+  O->>O: Process (DB, Redis, etc.)
+  O-->>N: HTTP Response
+  N-->>B: HTTP Response
+    </pre>
+    </div>
+
+    <h2>5. WebSocket Flow</h2>
+    <p>For real-time features, the browser establishes a WebSocket connection directly to the Reverb server. Reverb,
+        running as a Laravel process, handles all WebSocket events and broadcasts, enabling real-time updates in the
+        app.</p>
+
+    <h2>6. WebSocket Flow Diagram</h2>
+    <div class="diagram">
+        <pre class="mermaid">
+sequenceDiagram
+  participant B as Browser
+  participant R as Reverb (WebSocket)
+  B->>R: WebSocket Connect
+  R-->>B: Real-time Events
+    </pre>
+    </div>
+
+    <h2>7. Supervisor's Role</h2>
+    <p>Supervisor is a process manager running inside the main app container. It ensures that Octane, Horizon (for
+        queues), and Reverb (for WebSockets) are always running. If any process crashes, Supervisor will automatically
+        restart it.</p>
+
+    <h2>8. Supporting Services</h2>
+    <ul>
+        <li><b>MySQL</b>: Main database for application data.</li>
+        <li><b>Redis</b>: Used for cache, session, and queue management.</li>
+        <li><b>Mailhog</b>: Captures outgoing emails for local development/testing.</li>
+        <li><b>RedisInsight</b>: GUI for monitoring Redis.</li>
+        <li><b>phpMyAdmin</b>: Web-based MySQL management tool.</li>
+    </ul>
+
+    <h2>9. Accessing Services</h2>
+    <ul>
+        <li><b>App:</b> <code>http://supporting-ticket-system.test</code></li>
+        <li><b>phpMyAdmin:</b> <code>http://localhost:8080</code></li>
+        <li><b>Mailhog:</b> <code>http://localhost:8025</code></li>
+        <li><b>RedisInsight:</b> <code>http://localhost:5540</code></li>
+    </ul>
+
+    <h2>Summary</h2>
+    <p>This architecture provides a robust, scalable, and developer-friendly environment for building and running a
+        modern Laravel application with real-time features, background jobs, and a full suite of supporting tools.</p>
+</body>
+
+</html>
