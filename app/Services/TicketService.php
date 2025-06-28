@@ -10,6 +10,8 @@ use App\Repositories\Contracts\TicketRepositoryInterface;
 use App\Services\Contracts\TicketServiceInterface;
 use App\Traits\MediaExtraInteractions;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -19,8 +21,20 @@ class TicketService implements TicketServiceInterface
 
     public function __construct(
         protected TicketRepositoryInterface $ticketRepository,
-        protected ReplyRepositoryInterface $replyRepository
-    ) {}
+        protected ReplyRepositoryInterface  $replyRepository
+    )
+    {}
+
+    /**@param Request $request
+     * @return array{tickets: LengthAwarePaginator, ticketCount: mixed}
+     */
+    public function getUserTickets(Request $request): array
+    {
+        return [
+            $this->ticketRepository->getUserTickets($request),
+            $this->ticketRepository->ticketCounts($request)
+        ];
+    }
 
     /**
      * @param TicketData $data
@@ -34,7 +48,7 @@ class TicketService implements TicketServiceInterface
             $replyData = ReplyData::new($data, $ticket);
             $reply = $this->replyRepository->create($replyData);
 
-            if($replyData->has_attachments) {
+            if ($replyData->has_attachments) {
                 $this->cleanupTemporaryFile($reply, $data->fileData);
             }
             DB::commit();
