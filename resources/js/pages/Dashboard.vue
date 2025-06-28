@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import { useToast } from 'vue-toastification';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
+const toast = useToast();
+const page = usePage();
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
     },
 ];
+onMounted(() => {
+    const errors = page.props.errors;
+    if (errors) {
+        for (const item in errors) {
+            toast.error(errors[item]);
+        }
+    }
+});
 </script>
 
 <template>

@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use App\Services\Contracts\TicketServiceInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,11 +25,24 @@ class TicketController extends Controller
 
     /**
      * Display a listing of the resource.
-     * @throws AuthorizationException
      */
-    public function index(): Response
+    public function index(Request $request): Response|RedirectResponse
     {
-        return Inertia::render('Tickets/Index', []);
+        try{
+            [$tickets, $ticketCount] = $this->ticketService->getUserTickets($request);
+
+            return Inertia::render('Tickets/Index', [
+                "tickets" => $tickets,
+                "ticketCount" => $ticketCount,
+            ]);
+
+        }catch(\Throwable $e){
+            Log::error($e->getMessage());
+
+            return back()->withErrors([
+                "message" => "failed to retrieve tickets.",
+            ]);
+        }
     }
 
     /**
@@ -46,7 +60,7 @@ class TicketController extends Controller
     {
         try {
             $ticket = $this->ticketService->createTicket($request->toDto());
-            
+
             return redirect()->route('tickets.show', ['ticket' => $ticket->slug]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
