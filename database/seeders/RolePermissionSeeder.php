@@ -22,9 +22,11 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'ticket.delete', 'description' => 'Delete support tickets'],
             ['name' => 'ticket.assign', 'description' => 'Assign tickets to staff'],
             ['name' => 'ticket.close', 'description' => 'Close resolved tickets'],
-
-
-            //
+            // Replies
+            ['name' => 'reply.create', 'description' => 'Create replies to tickets'],
+            ['name' => 'reply.view', 'description' => 'View replies to tickets'],
+            ['name' => 'reply.update', 'description' => 'Update replies to tickets'],
+            ['name' => 'reply.delete', 'description' => 'Delete replies to tickets'],
         ];
 
         foreach ($permissions as $perm) {
@@ -60,11 +62,17 @@ class RolePermissionSeeder extends Seeder
             'ticket.update',
             'ticket.assign',
             'ticket.close',
+            'reply.create',
+            'reply.view',
+            'reply.update',
+            'reply.delete',
         ]);
 
         Role::findByName('user')->syncPermissions([
             'ticket.create',
             'ticket.view',
+            'reply.create',
+            'reply.view',
         ]);
     }
 }
