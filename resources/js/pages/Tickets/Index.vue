@@ -9,13 +9,14 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Pen } from 'lucide-vue-next';
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
-import moment from "moment";
+import moment from 'moment';
 
 interface TableCells {
-    subject: string,
-    priority: string,
-    status: string,
-    created_at: string
+    slug: string;
+    subject: string;
+    priority: string;
+    status: string;
+    created_at: string;
 }
 type TableOperations = Array<{
     label: string;
@@ -23,18 +24,19 @@ type TableOperations = Array<{
     icon: string;
 }>;
 
-const props = defineProps(['tickets', 'ticketCount'])
+const props = defineProps(['tickets', 'ticketCount']);
 const loading = ref(false);
 const tabs = reactive([
-    { name: 'All', href: '#', count: 0, code: "total", current: true },
-    { name: 'Open', href: '#', count: 0, code: "open", current: false },
-    { name: 'In Progress', href: '#', count: 0, code: "in_progress", current: false },
-    { name: 'Closed', href: '#', count: 0, code: "closed", current: false },
+    { name: 'All', href: '#', count: 0, code: 'total', current: true },
+    { name: 'Open', href: '#', count: 0, code: 'open', current: false },
+    { name: 'In Progress', href: '#', count: 0, code: 'in_progress', current: false },
+    { name: 'Closed', href: '#', count: 0, code: 'closed', current: false },
 ]);
 const tableData: {
     thead: string[];
     tbody: {
         cells: TableCells;
+        meta: { slug: string };
         operations: TableOperations;
     }[];
 } = reactive({
@@ -50,92 +52,106 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 function handleOperationClick({ action, rowIdx }: { action: string; rowIdx: number }) {
-    alert(`Operation: ${action} on row ${rowIdx + 1}`);
+    if(action === 'more'){
+        router.get(route('tickets.show', {ticket: tableData.tbody[rowIdx].meta.slug}))
+    }
 }
 
 onBeforeMount(() => {
     // initializing the current tab
     const params = route().params;
-    if(params.status){
-        tabs.map(item => item.current = item.code === params.status)
+    if (params.status) {
+        tabs.map((item) => (item.current = item.code === params.status));
     }
 
     // initializing ticket counts
     if (props.ticketCount) {
-        props.ticketCount.forEach((element: { status: string, count: number }) => {
-            tabs.forEach(tab => {
+        props.ticketCount.forEach((element: { status: string; count: number }) => {
+            tabs.forEach((tab) => {
                 if (tab.code === element.status) {
                     tab.count = element.count;
                 }
-                if(tab.code === 'total'){
+                if (tab.code === 'total') {
                     tab.count += element.count;
                 }
-            })
+            });
         });
     }
 
     // initializing table data
     props.tickets.data.forEach((element: TableCells) => {
         const cells: any = [];
+        let meta = {};
         Object.entries(element).forEach(([key, value]) => {
-            if (key === "status") {
+            if (key === 'status') {
                 cells.push({
                     value: value,
                     badge: true,
-                    badgeType: value === 'closed' ? 'danger' : value === 'open' ? 'success' : 'warning'
-                })
-            } else if (key === "created_at") {
-                cells.push(moment(value).toNow())
+                    badgeType: value === 'closed' ? 'danger' : value === 'open' ? 'success' : 'warning',
+                });
+            } else if (key === 'created_at') {
+                cells.push(moment(value).toNow());
+            } else if (key === 'slug') {
+                meta = {slug: value};
             } else {
-                cells.push(value)
+                cells.push(value);
             }
-        })
-        tableData.tbody.push(
-            {
-                cells,
-                operations: [
-                    {
-                        label: 'More',
-                        action: 'more',
-                        icon: 'Eye'
-                    },
-                ],
-            }
-        );
+        });
+        tableData.tbody.push({
+            cells,
+            meta,
+            operations: [
+                {
+                    label: 'More',
+                    action: 'more',
+                    icon: 'Eye',
+                },
+            ],
+        });
     });
-})
-
-onMounted(() => {
-    watch(() => tabs, () => {
-        const activeTab = tabs.find(item => item.current)
-        loading.value = true;
-        router.get(route('tickets.index', {
-            status: activeTab?.code
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-            onFinish: ()=>{
-                loading.value = false;
-            }
-        }))
-        console.log(activeTab)
-    }, { deep: true })
 });
 
+onMounted(() => {
+    watch(
+        () => tabs,
+        () => {
+            const activeTab = tabs.find((item) => item.current);
+            loading.value = true;
+            router.get(
+                route(
+                    'tickets.index',
+                    {
+                        status: activeTab?.code,
+                    },
+                    {
+                        preserveState: true,
+                        preserveScroll: true,
+                        onFinish: () => {
+                            loading.value = false;
+                        },
+                    },
+                ),
+            );
+        },
+        { deep: true },
+    );
+});
 </script>
 
 <template>
-
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <!-- Header -->
-            <Button @click="router.get(route('tickets.create'))"
-                class="group flex cursor-pointer items-center overflow-hidden px-4 py-2 transition-all duration-300">
+            <Button
+                @click="router.get(route('tickets.create'))"
+                class="group flex cursor-pointer items-center overflow-hidden px-4 py-2 transition-all duration-300"
+            >
                 <span class="transition-all duration-300">Create A Ticket</span>
                 <Pen
-                    class="-translate-x-2 opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100" />
+                    class="-translate-x-2 opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
+                />
             </Button>
 
             <!-- Tabs -->

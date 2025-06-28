@@ -21,7 +21,7 @@ class TicketRepository implements TicketRepositoryInterface
     {
         $userId = $request->user()->id;
 
-        return Ticket::select('subject', 'priority', 'status', 'created_at')
+        return Ticket::select('slug', 'subject', 'priority', 'status', 'created_at')
         ->when($request->has('status'), function ($query) use ($request) {
                 $status = TicketStatus::fromString($request->status);
 
