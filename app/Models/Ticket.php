@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Traits\HasSlug;
 use Database\Factories\TicketFactory;
@@ -24,12 +25,12 @@ class Ticket extends Model
 
 
     protected $fillable = [
+        'subject',
+        'priority',
         'assignee_id',
         'slug',
         'status',
         'closed_at',
-        'subject',
-        'priority'
     ];
 
     public function assignee(): BelongsTo
@@ -45,7 +46,8 @@ class Ticket extends Model
     public function casts(): array
     {
         return [
-            "status" => TicketStatus::class
+            "status" => TicketStatus::class,
+            "priority"  => TicketPriority::class,
         ];
     }
 }
