@@ -1,0 +1,42 @@
+# Node dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Laravel & PHP
+vendor
+.env
+Homestead.yaml
+Homestead.json
+.phpunit.result.cache
+.phpunit.cache
+.phpactor.json
+auth.json
+
+# Laravel build artifacts
+/public/build
+/public/hot
+/public/storage
+
+# Storage (except for persistent volumes)
+storage/*.key
+storage/pail
+
+# IDE & editor
+.idea
+.vscode
+.nova
+.fleet
+.zed
+
+# Misc
+.DS_Store
+
+# Docker
+docker-compose.yml
+.dockerignore
+
+# Tests, docs, and local config
+tests
+docs
+*.md

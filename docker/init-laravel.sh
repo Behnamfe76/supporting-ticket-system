@@ -11,9 +11,6 @@ fi
 # Generate application key if not set
 php artisan key:generate
 
-# Install PHP dependencies
-composer install --no-interaction --prefer-dist --optimize-autoloader
-
 # Cache config and routes
 php artisan config:cache
 php artisan route:cache
