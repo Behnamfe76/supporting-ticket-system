@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Tickets\StoreTicketRequest;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
+use App\Http\Resources\TicketRecource;
 use App\Models\Reply;
 use App\Models\Ticket;
 use App\Services\Contracts\TicketServiceInterface;
@@ -77,7 +78,7 @@ class TicketController extends Controller
     public function show(Ticket $ticket): Response
     {
         return Inertia::render('Tickets/Show', [
-           "ticket" => $ticket,
+           "ticket" => new TicketRecource($ticket->load(["replies", "submitter"])),
         ]);
     }
 
