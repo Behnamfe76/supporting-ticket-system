@@ -22,10 +22,10 @@ class TicketRepository implements TicketRepositoryInterface
         $userId = $request->user()->id;
 
         return Ticket::select('slug', 'subject', 'priority', 'status', 'created_at')
-        ->when($request->has('status'), function ($query) use ($request) {
+            ->when($request->has('status'), function ($query) use ($request) {
                 $status = TicketStatus::fromString($request->status);
 
-                if($status instanceof TicketStatus){
+                if ($status instanceof TicketStatus) {
                     $query->where('status', $status->value);
                 }
             })
@@ -39,7 +39,7 @@ class TicketRepository implements TicketRepositoryInterface
      * @param Request $request
      * @return mixed
      */
-    public function ticketCounts(Request $request): mixed
+    public function userTicketCounts(Request $request): mixed
     {
         $userId = $request->user()->id;
 
@@ -47,6 +47,37 @@ class TicketRepository implements TicketRepositoryInterface
             $query->where('author_id', $userId);
         })
             ->select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+    }
+
+    /**
+     * @param Request $request
+     * @return LengthAwarePaginator
+     */
+    public function getTickets(Request $request): LengthAwarePaginator
+    {
+        return Ticket::select('slug', 'subject', 'priority', 'status', 'created_at')
+            ->when($request->has('status'), function ($query) use ($request) {
+                $status = TicketStatus::fromString($request->status);
+
+                if ($status instanceof TicketStatus) {
+                    $query->where('status', $status->value);
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function ticketCounts(Request $request): mixed
+    {
+        $userId = $request->user()->id;
+
+        return Ticket::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get();
     }

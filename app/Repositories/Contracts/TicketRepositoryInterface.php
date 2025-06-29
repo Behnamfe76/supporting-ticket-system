@@ -15,11 +15,19 @@ interface TicketRepositoryInterface
      */
     public function getUserTickets(Request $request): LengthAwarePaginator;
 
+
     /**
-     * @param TicketData $data
-     * @return Ticket
+     * @param Request $request
+     * @return mixed
      */
-    public function create(TicketData $data): Ticket;
+    public function userTicketCounts(Request $request): mixed;
+
+    /**
+     * @param Request $request
+     * @return LengthAwarePaginator
+     */
+    public function getTickets(Request $request): LengthAwarePaginator;
+
 
     /**
      * @param Request $request
@@ -27,4 +35,9 @@ interface TicketRepositoryInterface
      */
     public function ticketCounts(Request $request): mixed;
 
+    /**
+     * @param TicketData $data
+     * @return Ticket
+     */
+    public function create(TicketData $data): Ticket;
 }
