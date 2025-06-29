@@ -10,7 +10,8 @@ import { configureEcho } from '@laravel/echo-vue';
 import Toast from "vue-toastification";
 // Import the CSS or use your own!
 import "vue-toastification/dist/index.css";
-
+import PrimeVue from 'primevue/config';
+import Aura from '@primeuix/themes/aura';
 const toastificationOptions = {
     position: "top-right",
     timeout: 5000,
@@ -40,6 +41,11 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(Toast, toastificationOptions)
+            .use(PrimeVue, {
+                theme: {
+                    preset: Aura
+                }
+            })
             .mount(el);
     },
     progress: {
