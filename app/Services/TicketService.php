@@ -2,18 +2,20 @@
 
 namespace App\Services;
 
+use Exception;
+use Throwable;
+use App\Models\Ticket;
 use App\Data\ReplyData;
 use App\Data\TicketData;
-use App\Models\Ticket;
+use Illuminate\Http\Request;
+use App\Data\UploadingFileData;
+use Illuminate\Support\Facades\DB;
+use App\Traits\MediaExtraInteractions;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Http\Requests\Tickets\StoreReplyRequest;
+use App\Services\Contracts\TicketServiceInterface;
 use App\Repositories\Contracts\ReplyRepositoryInterface;
 use App\Repositories\Contracts\TicketRepositoryInterface;
-use App\Services\Contracts\TicketServiceInterface;
-use App\Traits\MediaExtraInteractions;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class TicketService implements TicketServiceInterface
 {
@@ -32,7 +34,7 @@ class TicketService implements TicketServiceInterface
     {
         return [
             $this->ticketRepository->getUserTickets($request),
-            $this->ticketRepository->ticketCounts($request)
+            $this->ticketRepository->userTicketCounts($request)
         ];
     }
 
@@ -54,6 +56,36 @@ class TicketService implements TicketServiceInterface
             DB::commit();
 
             return $ticket;
+        } catch (\Throwable $th) {
+            DB::rollback();
+
+            return $th;
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function getAdminTickets(Request $request): array
+    {
+        return [
+            $this->ticketRepository->getTickets($request),
+            $this->ticketRepository->ticketCounts($request)
+        ];
+    }
+
+    public function replyTicket(StoreReplyRequest $request, ReplyData $data): bool|Throwable|Exception{
+        try {
+            DB::beginTransaction();
+            $reply = $this->replyRepository->create($data);
+
+            if ($data->has_attachments) {
+                $this->cleanupTemporaryFile($reply, UploadingFileData::fromRequest($request));
+            }
+            DB::commit();
+
+            return true;
         } catch (\Throwable $th) {
             DB::rollback();
 
