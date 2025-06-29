@@ -3,11 +3,23 @@ import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
-import type { BreadcrumbItemType } from '@/types';
+import type { BreadcrumbItemType, NavItem } from '@/types';
+import { LayoutGrid, Mail } from 'lucide-vue-next';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
 }
+const mainNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },{
+        title: 'Tickets',
+        href: '/tickets',
+        icon: Mail,
+    },
+];
 
 withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
@@ -16,7 +28,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppShell variant="sidebar">
-        <AppSidebar />
+        <AppSidebar :mainNavItems="mainNavItems" />
         <AppContent variant="sidebar">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
