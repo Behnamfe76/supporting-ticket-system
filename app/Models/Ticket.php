@@ -28,11 +28,16 @@ class Ticket extends Model
         'subject',
         'priority',
         'assignee_id',
+        'submitted_by',
         'slug',
         'status',
         'closed_at',
     ];
 
+    public function submitter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'submitted_by');
+    }
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');

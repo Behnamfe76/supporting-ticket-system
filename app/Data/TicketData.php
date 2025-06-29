@@ -26,6 +26,9 @@ class TicketData extends Data
         #[Nullable, IntegerType]
         public ?int $assignee_id,
 
+        #[Nullable, IntegerType]
+        public ?int $submitted_by,
+
         #[Required]
         public TicketStatus $status,
 
@@ -47,6 +50,7 @@ class TicketData extends Data
             content: $request->get('content'),
             priority: TicketPriority::from($request->get('priority')),
             assignee_id: null,
+            submitted_by: $request->user()->id,
             status: TicketStatus::OPEN,
             fileData: $request->get('file_data') ? UploadingFileData::fromRequest($request) : null,
             closed_at: null
