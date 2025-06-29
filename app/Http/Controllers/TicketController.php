@@ -81,41 +81,4 @@ class TicketController extends Controller
            "ticket" => new TicketRecource($ticket->load(["replies", "submitter"])),
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ticket $ticket)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTicketRequest $request, Ticket $ticket)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Ticket $ticket)
-    {
-        //
-    }
-
-    public function reply($ticketId)
-    {
-        $ticket = Ticket::findOrFail($ticketId);
-        $user = auth()->user();
-        // Check permission to create a reply
-        $this->authorize('create', Reply::class);
-        // Optionally, check if user is related to the ticket
-        if (!($user->id === $ticket->assignee_id || $user->id === $ticket->user_id || $user->hasRole('admin') || $user->hasRole('super-admin'))) {
-            abort(403, 'You are not authorized to reply to this ticket.');
-        }
-        // ... reply logic ...
-    }
 }
