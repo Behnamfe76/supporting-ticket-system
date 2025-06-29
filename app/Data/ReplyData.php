@@ -2,13 +2,11 @@
 
 namespace App\Data;
 
-use App\Enums\TicketStatus;
+use App\Http\Requests\Tickets\StoreReplyRequest;
 use App\Models\Ticket;
 use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\Date;
 use Spatie\LaravelData\Data;
-use App\Enums\TicketPriority;
-use App\Http\Requests\Tickets\StoreTicketRequest;
 use Spatie\LaravelData\Attributes\Validation\Nullable;
 use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Attributes\Validation\StringType;
@@ -43,6 +41,19 @@ class ReplyData extends Data
             agent_id: null,
             author_id: request()->user()->id,
             has_attachments: (bool)$data->fileData,
+            seen_at: null,
+        );
+    }
+
+    public static function fromRequest(StoreReplyRequest $request, Ticket $ticket): ReplyData
+    {
+        $user = request()->user();
+        return new self(
+            content: $request->get('content'),
+            ticket_id: $ticket->id,
+            agent_id: $user->hasAnyRole(['admin', 'super-admin', 'admin']) ? $user->id : null,
+            author_id: $user->id,
+            has_attachments: (bool)$request->file_data,
             seen_at: null,
         );
     }
