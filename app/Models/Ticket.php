@@ -34,6 +34,11 @@ class Ticket extends Model
         'closed_at',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function submitter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
@@ -45,7 +50,7 @@ class Ticket extends Model
 
     public function replies(): HasMany
     {
-        return $this->hasMany(Reply::class);
+        return $this->hasMany(Reply::class)->orderBy('created_at', 'desc');
     }
 
     public function casts(): array
