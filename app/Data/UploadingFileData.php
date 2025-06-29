@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Http\Requests\Tickets\StoreReplyRequest;
 use Spatie\LaravelData\Data;
 use App\Http\Requests\Tickets\StoreTicketRequest;
 use Spatie\LaravelData\Attributes\Validation\Required;
@@ -21,7 +22,7 @@ class UploadingFileData extends Data
         public int $user_id,
     ) {}
 
-    public static function fromRequest(StoreTicketRequest $request): self
+    public static function fromRequest(StoreTicketRequest|StoreReplyRequest $request): self
     {
         return new self(
             file_name: $request->get('file_data')['file_name'],
