@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import {
-    ArchiveBoxIcon as ArchiveBoxIconMini,
     ArrowUturnLeftIcon,
     ChevronDownIcon,
-    ChevronUpIcon,
     EllipsisVerticalIcon,
-    FolderArrowDownIcon,
     PencilIcon,
     UserPlusIcon,
 } from '@heroicons/vue/20/solid';
 import { Paperclip, CheckCheck, Check } from 'lucide-vue-next';
-
-import AppLayout from '@/layouts/AppLayout.vue';
+import Dialog from 'primevue/dialog';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { capitalize, generateStatusStyles, getImageName } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import moment from 'moment';
-import { onBeforeMount, reactive } from 'vue';
+import { onBeforeMount, reactive, ref } from 'vue';
+import ReplyForm from '@/partials/Tickets/ReplyForm.vue';
 
 type ReplyType = Array<{
     id: number;
@@ -29,15 +27,17 @@ type ReplyType = Array<{
     seen_at: null | string;
 }>;
 
+const replyModal = ref(false);
 const props = defineProps(['ticket', 'auth']);
+console.log(props.ticket)
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Tickets',
-        href: '/tickets',
+        href: '/admin/tickets',
     },
     {
         title: 'Show',
-        href: '/tickets/show',
+        href: '/admin/tickets/show',
     },
 ];
 const message: {
@@ -49,37 +49,7 @@ const message: {
     subject: 'Re: New pricing for existing customers',
     sender: 'joearmstrong@example.com',
     status: 'Open',
-    items: [
-        //   {
-        //       id: 1,
-        //       author: 'Joe Armstrong',
-        //       date: 'Yesterday at 7:24am',
-        //       datetime: '2021-01-28T19:24',
-        //       body: "<p>Thanks so much! Can't wait to try it out.</p>",
-        //   },
-        //   {
-        //       id: 2,
-        //       author: 'Monica White',
-        //       date: 'Wednesday at 4:35pm',
-        //       datetime: '2021-01-27T16:35',
-        //       body: `
-        //   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Malesuada at ultricies tincidunt elit et, enim. Habitant nunc, adipiscing non fermentum, sed est a, aliquet. Lorem in vel libero vel augue aliquet dui commodo.</p>
-        //   <p>Nec malesuada sed sit ut aliquet. Cras ac pharetra, sapien purus vitae vestibulum auctor faucibus ullamcorper. Leo quam tincidunt porttitor neque, velit sed. Tortor mauris ornare ut tellus sed aliquet amet venenatis condimentum. Convallis accumsan et nunc eleifend.</p>
-        //   <p><strong style="font-weight: 600;">Monica White</strong><br/>Customer Service</p>
-        // `,
-        //   },
-        //   {
-        //       id: 3,
-        //       author: 'Joe Armstrong',
-        //       date: 'Wednesday at 4:09pm',
-        //       datetime: '2021-01-27T16:09',
-        //       body: `
-        //   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Malesuada at ultricies tincidunt elit et, enim. Habitant nunc, adipiscing non fermentum, sed est a, aliquet. Lorem in vel libero vel augue aliquet dui commodo.</p>
-        //   <p>Nec malesuada sed sit ut aliquet. Cras ac pharetra, sapien purus vitae vestibulum auctor faucibus ullamcorper. Leo quam tincidunt porttitor neque, velit sed. Tortor mauris ornare ut tellus sed aliquet amet venenatis condimentum. Convallis accumsan et nunc eleifend.</p>
-        //   <p>– Joe</p>
-        // `,
-        //   },
-    ],
+    items: [],
 });
 
 onBeforeMount(() => {
@@ -108,7 +78,7 @@ onBeforeMount(() => {
 <template>
     <Head title="Dashboard" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AdminLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="flex h-full flex-col">
                 <div class="flex min-h-0 flex-1 overflow-hidden">
@@ -121,11 +91,11 @@ onBeforeMount(() => {
                                 <div class="flex h-16 flex-col justify-center">
                                     <div class="px-4 sm:px-6 lg:px-8">
                                         <div class="flex justify-between py-3">
-                                            <!-- Left buttons -->
                                             <div>
                                                 <div class="isolate inline-flex rounded-md shadow-xs sm:space-x-3 sm:shadow-none">
                                                     <span class="inline-flex sm:shadow-xs">
                                                         <button
+                                                            @click="replyModal = true"
                                                             type="button"
                                                             class="relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:z-10 hover:bg-gray-50 focus:z-10"
                                                         >
@@ -148,22 +118,7 @@ onBeforeMount(() => {
                                                         </button>
                                                     </span>
 
-                                                    <span class="hidden space-x-3 lg:flex">
-                                                        <button
-                                                            type="button"
-                                                            class="relative -ml-px hidden items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:z-10 hover:bg-gray-50 focus:z-10 sm:inline-flex"
-                                                        >
-                                                            <ArchiveBoxIconMini class="-ml-0.5 size-5 text-gray-400" aria-hidden="true" />
-                                                            Archive
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            class="relative -ml-px hidden items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:z-10 hover:bg-gray-50 focus:z-10 sm:inline-flex"
-                                                        >
-                                                            <FolderArrowDownIcon class="-ml-0.5 size-5 text-gray-400" aria-hidden="true" />
-                                                            Move
-                                                        </button>
-                                                    </span>
+
 
                                                     <Menu as="div" class="relative -ml-px block sm:shadow-xs lg:hidden">
                                                         <div>
@@ -234,26 +189,6 @@ onBeforeMount(() => {
                                                     </Menu>
                                                 </div>
                                             </div>
-
-                                            <!-- Right buttons -->
-                                            <nav aria-label="Pagination">
-                                                <span class="isolate inline-flex rounded-md shadow-xs">
-                                                    <a
-                                                        href="#"
-                                                        class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:z-10 hover:bg-gray-50 focus:z-10"
-                                                    >
-                                                        <span class="sr-only">Next</span>
-                                                        <ChevronUpIcon class="size-5" aria-hidden="true" />
-                                                    </a>
-                                                    <a
-                                                        href="#"
-                                                        class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:z-10 hover:bg-gray-50 focus:z-10"
-                                                    >
-                                                        <span class="sr-only">Previous</span>
-                                                        <ChevronDownIcon class="size-5" aria-hidden="true" />
-                                                    </a>
-                                                </span>
-                                            </nav>
                                         </div>
                                     </div>
                                 </div>
@@ -383,8 +318,13 @@ onBeforeMount(() => {
                             </div>
                         </section>
                     </main>
+
+                    <!-- reply modal -->
+                    <Dialog v-model:visible="replyModal" maximizable modal header="Reply Ticket" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+                        <reply-form :ticket="props.ticket.data.slug"/>
+                    </Dialog>
                 </div>
             </div>
         </div>
-    </AppLayout>
+    </AdminLayout>
 </template>

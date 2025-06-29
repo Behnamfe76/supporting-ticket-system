@@ -107,7 +107,7 @@ watch(props, () => {
                     </div>
                 </div>
 
-                <!-- priority -->
+                <!-- content -->
                 <div class="grid gap-2">
                     <Label for="content">Content</Label>
                     <Textarea id="content" v-model="form.content" class="mt-1 block w-full"
