@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\Reply;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Factories\NotificationMailFactory;
@@ -14,12 +14,14 @@ class CreateNewTicketNotification extends Notification
     use Queueable;
 
     protected Ticket $ticket;
+    protected Reply $reply;
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket)
+    public function __construct(Reply $reply)
     {
-        $this->ticket = $ticket;
+        $this->ticket = $reply->ticket;
+        $this->reply = $reply;
     }
 
     /**
@@ -67,6 +69,8 @@ class CreateNewTicketNotification extends Notification
     {
         return [
             'ticket_slug' => $this->ticket->slug,
+            'ticket_subject' => $this->ticket->subject,
+            'reply_id' => $this->reply->id,
         ];
     }
 }

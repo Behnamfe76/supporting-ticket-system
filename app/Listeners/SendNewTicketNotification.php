@@ -7,8 +7,12 @@ use App\Notifications\CreateNewTicketNotification;
 
 class SendNewTicketNotification
 {
-    public function handle(CreateNewTicketEvent $event)
+    /**
+     * @param CreateNewTicketEvent $event
+     * @return void
+     */
+    public function handle(CreateNewTicketEvent $event): void
     {
-        $event->user->notify(new CreateNewTicketNotification($event->ticket));
+        $event->user->notify(new CreateNewTicketNotification($event->reply));
     }
 }
