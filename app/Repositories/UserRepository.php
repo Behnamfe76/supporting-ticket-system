@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Data\UserData;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 
@@ -17,5 +18,28 @@ class UserRepository implements UserRepositoryInterface
         })
             ->select('slug', 'name', 'email', 'created_at')
             ->paginate(12);
+    }
+
+    /**
+     * @param UserData $data
+     * @return User
+     */
+    public function store(UserData $data): User
+    {
+        return User::create($data->toArray());
+    }
+
+    /**
+     * @param UserData $data
+     * @param User $user
+     * @return bool
+     */
+    public function update(UserData $data, User $user): bool
+    {
+        $updateData = ['name' => $data->name];
+        if (!empty($data->password)) {
+            $updateData['password'] = $data->password;
+        }
+        return $user->update($updateData);
     }
 }
