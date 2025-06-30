@@ -10,7 +10,8 @@ import { FormValidator } from '@/lib/form-validator';
 import { LoaderCircle } from 'lucide-vue-next';
 
 const props = defineProps<{
-    ticket: string
+    ticket: string,
+    submissionRoute: string
 }>();
 
 const form: InertiaForm<{
@@ -26,7 +27,7 @@ const replyTicket = () => {
     });
 
     if (validated) {
-        form.post(route('admin.tickets.reply', { ticket: props.ticket }), {});
+        form.post(route(props.submissionRoute, { ticket: props.ticket }), {});
     }
 };
 

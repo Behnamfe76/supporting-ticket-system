@@ -17,12 +17,16 @@ Route::get('dashboard', function () {
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
     // tickets
-    Route::resource("tickets", TicketController::class)
-        ->middleware('role:user')
-        ->scoped(['ticket' => "slug"]);
+    Route::group(['middleware' => ['role:user']], function () {
+        Route::resource("tickets", TicketController::class)
+            ->middleware('role:user')
+            ->scoped(['ticket' => "slug"]);
+
+        Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    });
 
     // Temporary upload route
-    Route::post('/temporary-upload', [TemporaryUploadController::class, 'store'])->name('temporary-upload')  ;
+    Route::post('/temporary-upload', [TemporaryUploadController::class, 'store'])->name('temporary-upload');
 });
 
 Route::middleware(['auth', 'verified', 'role:super-admin|admin|staff'])
@@ -32,8 +36,7 @@ Route::middleware(['auth', 'verified', 'role:super-admin|admin|staff'])
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::resource("tickets", AdminTicketController::class)->scoped(['ticket' => "slug"])->only(['index', 'show']);
         Route::post('/tickets/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('tickets.reply');
-
     });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

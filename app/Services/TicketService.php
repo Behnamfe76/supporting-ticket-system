@@ -26,8 +26,7 @@ class TicketService implements TicketServiceInterface
     public function __construct(
         protected TicketRepositoryInterface $ticketRepository,
         protected ReplyRepositoryInterface  $replyRepository
-    )
-    {}
+    ) {}
 
     /**@param Request $request
      * @return array{tickets: LengthAwarePaginator, ticketCount: mixed}
@@ -77,7 +76,8 @@ class TicketService implements TicketServiceInterface
         ];
     }
 
-    public function replyTicket(StoreReplyRequest $request, ReplyData $data): bool|Throwable|Exception{
+    public function replyTicket(StoreReplyRequest $request, ReplyData $data): bool|Throwable|Exception
+    {
         try {
             DB::beginTransaction();
             $reply = $this->replyRepository->create($data);
@@ -85,9 +85,11 @@ class TicketService implements TicketServiceInterface
             if ($data->has_attachments) {
                 $this->cleanupTemporaryFile($reply, UploadingFileData::fromRequest($request));
             }
+
             $ticket = $reply->ticket;
             $user = $ticket->submitter;
             CreateNewTicketEvent::dispatch($ticket, $user);
+
             DB::commit();
 
             return true;

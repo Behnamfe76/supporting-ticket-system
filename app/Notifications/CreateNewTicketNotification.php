@@ -29,7 +29,13 @@ class CreateNewTicketNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database', 'broadcast'];
+        $channels = ['database', 'broadcast'];
+
+        if(! request()->user()->hasRole('user')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     /**

@@ -7,29 +7,19 @@ import {
     PencilIcon,
     UserPlusIcon,
 } from '@heroicons/vue/20/solid';
-import { Paperclip, CheckCheck, Check } from 'lucide-vue-next';
 import Dialog from 'primevue/dialog';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { capitalize, generateStatusStyles, getImageName } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
+import { capitalize, generateStatusStyles } from '@/lib/utils';
+import { type BreadcrumbItem, ReplyType } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import moment from 'moment';
 import { onBeforeMount, reactive, ref } from 'vue';
 import ReplyForm from '@/partials/Tickets/ReplyForm.vue';
-
-type ReplyType = Array<{
-    id: number;
-    author: string;
-    attachment: boolean | string;
-    body: string;
-    date: string;
-    datetime: string;
-    seen_at: null | string;
-}>;
+import MessagesTimeline from '@/partials/Tickets/MessagesTimeline.vue';
 
 const replyModal = ref(false);
 const props = defineProps(['ticket', 'auth']);
-console.log(props.ticket)
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Tickets',
@@ -61,14 +51,19 @@ onBeforeMount(() => {
     message.status = ticket.status;
     if (replies.length) {
         replies.forEach((item: any, index: number) => {
+            const isCurrentUser = props.auth.user.name === item.author.name;
+            const isUserRole = isCurrentUser && props.auth.roles && props.auth.roles.includes('user');
             message.items.push({
                 id: index,
-                author: props.auth.user.name === item.author.name ? 'You' : capitalize(item.author.name),
+                author: isCurrentUser ? 'You' : capitalize(item.author.name),
+                isCurrentUser,
                 attachment: item.attachment,
                 body: `<p>${item.content}</p>`,
                 date: capitalize(moment(item.created_at).toNow() + ' at ' + moment(item.created_at).format('HH:mm:ss')),
                 datetime: item.created_at,
                 seen_at: item.seen_at,
+                color: isCurrentUser ? '#4F46E5' : '#64748B',
+                icon: isCurrentUser ? (isUserRole ? 'UserRound' : 'UserRoundCheck') : 'UserRound'
             });
         });
     }
@@ -274,54 +269,14 @@ onBeforeMount(() => {
                                     </div>
                                 </div>
                                 <!-- Thread section-->
-                                <ul role="list" class="space-y-2 py-4 sm:space-y-4 sm:px-6 lg:px-8">
-                                    <li v-for="item in message.items" :key="item.id" class="bg-white px-4 py-6 shadow-sm sm:rounded-lg sm:px-6">
-                                        <!-- message header -->
-                                        <div class="sm:flex sm:items-baseline sm:justify-between">
-                                            <h3 class="text-base font-medium">
-                                                <span class="text-gray-900">{{ item.author }}</span>
-                                                {{ ' ' }}
-                                                <span class="text-gray-600">wrote</span>
-                                            </h3>
-                                            <p class="mt-1 text-sm whitespace-nowrap text-gray-600 sm:mt-0 sm:ml-3">
-                                                <time :datetime="item.datetime">{{ item.date }}</time>
-                                            </p>
-                                        </div>
-
-                                        <!-- message header -->
-                                        <div class="mt-4 space-y-6 text-sm text-gray-800" v-html="item.body" />
-
-                                        <!-- message footer -->
-                                        <div class="mt-4 flex justify-between space-y-6 text-sm text-gray-800">
-                                            <!-- message attachments -->
-                                            <div class="mb-0">
-                                                <a
-                                                    class="hover:text-blue-500 flex gap-1 items-center"
-                                                    v-if="item.attachment && typeof item.attachment === 'string'"
-                                                    :href="item.attachment"
-                                                >
-                                                    <Paperclip />
-                                                    <span>{{getImageName(item.attachment)}}</span>
-                                                </a>
-                                            </div>
-                                            <!-- message seen data -->
-                                            <div class="flex items-center gap-2">
-                                                <Check v-if="!item.seen_at" />
-                                                <div v-else class="flex items-center gap-2">
-                                                    <span>{{ moment(item.seen_at).format('HH:mm') }}</span>
-                                                    <CheckCheck />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
+                                <messages-timeline :items="message.items" />
                             </div>
                         </section>
                     </main>
 
                     <!-- reply modal -->
                     <Dialog v-model:visible="replyModal" maximizable modal header="Reply Ticket" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-                        <reply-form :ticket="props.ticket.data.slug"/>
+                        <reply-form :ticket="props.ticket.data.slug" submissionRoute="admin.tickets.reply"/>
                     </Dialog>
                 </div>
             </div>

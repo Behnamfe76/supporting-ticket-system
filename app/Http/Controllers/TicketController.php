@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Tickets\StoreTicketRequest;
-use App\Http\Requests\Tickets\UpdateTicketRequest;
-use App\Http\Resources\TicketRecource;
+use Inertia\Inertia;
 use App\Models\Reply;
+use Inertia\Response;
 use App\Models\Ticket;
-use App\Services\Contracts\TicketServiceInterface;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Resources\TicketRecource;
+use App\Http\Requests\Tickets\StoreReplyRequest;
+use App\Http\Requests\Tickets\StoreTicketRequest;
+use App\Http\Requests\Tickets\UpdateTicketRequest;
+use App\Services\Contracts\TicketServiceInterface;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class TicketController extends Controller
 {
@@ -29,15 +30,14 @@ class TicketController extends Controller
      */
     public function index(Request $request): Response|RedirectResponse
     {
-        try{
+        try {
             [$tickets, $ticketCount] = $this->ticketService->getUserTickets($request);
 
             return Inertia::render('Tickets/Index', [
                 "tickets" => $tickets,
                 "ticketCount" => $ticketCount,
             ]);
-
-        }catch(\Throwable $e){
+        } catch (\Throwable $e) {
             Log::error($e->getMessage());
 
             return back()->withErrors([
@@ -78,7 +78,22 @@ class TicketController extends Controller
     public function show(Ticket $ticket): Response
     {
         return Inertia::render('Tickets/Show', [
-           "ticket" => new TicketRecource($ticket->load(["replies", "submitter"])),
+            "ticket" => new TicketRecource($ticket->load(["replies", "submitter"])),
         ]);
+    }
+
+    public function reply(StoreReplyRequest $request, Ticket $ticket): RedirectResponse
+    {
+        try {
+            $this->ticketService->replyTicket($request, $request->toDto($ticket));
+
+            return redirect()->route('tickets.show', ['ticket' => $ticket->slug]);
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+
+            return back()->withErrors([
+                "message" => "failed to reply the ticket.",
+            ]);
+        }
     }
 }
