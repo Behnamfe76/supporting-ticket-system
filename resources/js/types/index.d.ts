@@ -37,3 +37,16 @@ export interface User {
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
+
+export type ReplyType = Array<{
+    id: number;
+    author: string;
+    isCurrentUser: boolean;
+    attachment: boolean | string;
+    body: string;
+    date: string;
+    datetime: string;
+    seen_at: null | string;
+    color: string;
+    icon: string;
+}>;
