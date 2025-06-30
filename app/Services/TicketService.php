@@ -8,8 +8,10 @@ use App\Models\Ticket;
 use App\Data\ReplyData;
 use App\Data\TicketData;
 use Illuminate\Http\Request;
+use GuzzleHttp\Promise\Create;
 use App\Data\UploadingFileData;
 use Illuminate\Support\Facades\DB;
+use App\Events\CreateNewTicketEvent;
 use App\Traits\MediaExtraInteractions;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Tickets\StoreReplyRequest;
@@ -83,6 +85,9 @@ class TicketService implements TicketServiceInterface
             if ($data->has_attachments) {
                 $this->cleanupTemporaryFile($reply, UploadingFileData::fromRequest($request));
             }
+            $ticket = $reply->ticket;
+            $user = $ticket->submitter;
+            CreateNewTicketEvent::dispatch($ticket, $user);
             DB::commit();
 
             return true;
