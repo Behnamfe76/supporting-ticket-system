@@ -4,6 +4,7 @@ namespace App\Data;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Spatie\LaravelData\Attributes\Validation\Date;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Nullable;
@@ -22,8 +23,8 @@ class UserData extends Data
         #[Required, StringType]
         public string $role,
 
-        #[Nullable, Date]
-        public string|null $created_at,
+        #[StringType, Nullable]
+        public ?string $password,
     ) {}
 
     public static function fromRequest(Request $request): UserData
@@ -32,7 +33,7 @@ class UserData extends Data
             name: $request->input('name'),
             email: $request->input('email'),
             role: $request->input('role'),
-            created_at: Carbon::now(),
+            password: $request->input('password') ? Hash::make($request->input('password')) : null,
         );
     }
 }
