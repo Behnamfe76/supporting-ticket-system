@@ -6,7 +6,7 @@ import { Head } from '@inertiajs/vue3';
 
 import { watch } from 'vue';
 import { useToast } from 'vue-toastification';
-import CreateEmployeeForm from '@/partials/Admin/CreateEmployeeForm.vue';
+import EmployeeForm from '@/partials/Admin/EmployeeForm.vue';
 
 // eslint-disable-next-line vue/valid-define-props
 const props = defineProps(["errors"]);
@@ -36,6 +36,6 @@ watch(props, () => {
     <Head title="Dashboard" />
 
     <AdminLayout :breadcrumbs="breadcrumbs">
-        <create-employee-form buttonTitle="Create Employee" submission-route="admin.employees.store" mode="create" />
+        <employee-form buttonTitle="Create Employee" submission-route="admin.employees.store" mode="create" />
     </AdminLayout>
 </template>

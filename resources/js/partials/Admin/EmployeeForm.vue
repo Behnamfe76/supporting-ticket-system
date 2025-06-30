@@ -20,14 +20,12 @@ type CreateEmployeeForm = {
 };
 
 const props = defineProps<{
-    employee:
-        | {
-              name: string;
-              email: string;
-              role: string;
-              slug: string;
-          }
-        | undefined;
+    employee?: {
+        name: string;
+        email: string;
+        role: string;
+        slug: string;
+    }
     submissionRoute: string;
     buttonTitle: string;
     mode: string;
@@ -93,7 +91,7 @@ const formSubmission = () => {
                 <!-- name -->
                 <div class="grid w-full gap-2">
                     <Label for="name">Name</Label>
-                    <Input id="name" v-model="nameProxy" type="text" class="mt-1 block w-full" placeholder="write a name for ticket ..." />
+                    <Input id="name" v-model="nameProxy" type="text" class="mt-1 block w-full" placeholder="write employee's name ..." />
                     <InputError :message="form.errors.name" />
                 </div>
                 <!-- email -->
@@ -105,7 +103,7 @@ const formSubmission = () => {
                         v-model="emailProxy"
                         type="text"
                         class="mt-1 block w-full"
-                        placeholder="write a email for ticket ..."
+                        placeholder="write employee's email ..."
                     />
                     <InputError :message="form.errors.email" />
                 </div>
@@ -134,7 +132,7 @@ const formSubmission = () => {
                 </div>
             </div>
 
-            <div>
+            <div v-if="mode === 'edit'">
                 <Alert status="info">
                     Passwords are not required, but if filled, the password would be changed.
                 </Alert>

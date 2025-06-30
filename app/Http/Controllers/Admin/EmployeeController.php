@@ -65,6 +65,7 @@ class EmployeeController extends Controller
     }
 
     /**
+     * @param User $employee
      * @return Response
      */
     public function edit(User $employee): Response
@@ -76,7 +77,7 @@ class EmployeeController extends Controller
 
     /**
      * @param UpdateEmployeeRequest $request
-     * @param User $user
+     * @param $employeeSlug
      * @return Response|RedirectResponse
      */
     public function update(UpdateEmployeeRequest $request, $employeeSlug): Response|RedirectResponse

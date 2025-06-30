@@ -7,6 +7,8 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { onBeforeMount, reactive, ref } from 'vue';
 import moment from 'moment';
+import { Button } from '@/components/ui/button';
+import { Pen } from 'lucide-vue-next';
 
 interface TableCells {
     slug: string;
@@ -43,8 +45,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 function handleOperationClick({ action, rowIdx }: { action: string; rowIdx: number }) {
-    if(action === 'more'){
-        router.get(route('admin.tickets.show', {ticket: tableData.tbody[rowIdx].meta.slug}))
+    if(action === 'edit'){
+        router.get(route('admin.users.edit', {user: tableData.tbody[rowIdx].meta.slug}))
     }
 }
 
@@ -73,9 +75,9 @@ onBeforeMount(() => {
             meta,
             operations: [
                 {
-                    label: 'More',
-                    action: 'more',
-                    icon: 'Eye',
+                    label: 'Edit',
+                    action: 'edit',
+                    icon: 'Pen',
                 },
             ],
         });
@@ -89,6 +91,17 @@ onBeforeMount(() => {
 
     <AdminLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <!-- Header -->
+            <Button
+                @click="router.get(route('admin.users.create'))"
+                class="group flex cursor-pointer items-center overflow-hidden px-4 py-2 transition-all duration-300"
+            >
+                <span class="transition-all duration-300">Create A User</span>
+                <Pen
+                    class="-translate-x-2 opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:translate-x-0 group-hover:opacity-100"
+                />
+            </Button>
+
             <!-- Main Content -->
             <SimpleTable v-if="!loading" :data="tableData" @operation-click="handleOperationClick" />
             <SimpleTableSkeleton v-else :rows="10" />
