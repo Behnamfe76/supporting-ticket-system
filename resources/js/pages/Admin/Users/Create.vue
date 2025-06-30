@@ -54,23 +54,6 @@ const createTicket = () => {
     }
 };
 
-const priorities = [
-    { id: 'high', name: 'High', value: 'high' },
-    { id: 'medium', name: 'Medium', value: 'medium' },
-    { id: 'low', name: 'Low', value: 'low' },
-];
-
-const uploadMeta = {
-    url: route('temporary-upload'),
-    multiple: false,
-    maxSize: 5 * 1024 * 1024, // 5MB
-    allowedTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'],
-};
-
-const handleUploaded = (fileData: { path: string, file_name: string }) => {
-
-    form.file_data = fileData;
-};
 
 watch(props, () => {
     if (props.errors) {
@@ -87,51 +70,6 @@ watch(props, () => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <form @submit.prevent="createTicket" class="space-y-6">
-                <!-- subject/priority -->
-                <div class="flex gap-4 items-baseline">
-                    <!-- subject -->
-                    <div class="grid w-full gap-2">
-                        <Label for="subject">Subject</Label>
-                        <Input id="subject" v-model="form.subject" type="text" class="mt-1 block w-full"
-                            placeholder="write a subject for ticket ..." />
-                        <InputError :message="form.errors.subject" />
-                    </div>
 
-                    <!-- priority -->
-                    <div class="grid w-full gap-2">
-                        <Label for="subject">Priority</Label>
-                        <SingleSelect v-model="form.priority" :options="priorities" placeholder="Select priority" />
-                        <InputError :message="form.errors.priority" />
-                    </div>
-                </div>
-
-                <!-- content -->
-                <div class="grid gap-2">
-                    <Label for="content">Content</Label>
-                    <Textarea id="content" v-model="form.content" class="mt-1 block w-full"
-                        placeholder="write the content for ticket ..." :rows="4" />
-                    <InputError :message="form.errors.content" />
-                </div>
-
-                <!-- dropzone -->
-                <div class="grid gap-2">
-                    <DropZone :meta="uploadMeta" @uploaded="handleUploaded" />
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <Button :disabled="form.processing">
-                        <span>Create Ticket</span>
-                        <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    </Button>
-
-                    <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
-                        leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
-                        <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                    </Transition>
-                </div>
-            </form>
-        </div>
     </AppLayout>
 </template>

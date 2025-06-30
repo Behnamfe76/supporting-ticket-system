@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified', 'role:super-admin|admin|staff'])
 
         Route::resource("users", UserController::class)->scoped(['user' => "slug"]);
         Route::resource("employees", EmployeeController::class)->scoped(['employee' => "slug"]);
+
     });
 
 require __DIR__ . '/settings.php';
