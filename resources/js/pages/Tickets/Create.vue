@@ -46,11 +46,7 @@ const createTicket = () => {
     })
 
     if (validated) {
-        form.post(route('tickets.store'), {
-            onSuccess: (res) => {
-                console.log(res)
-            }
-        })
+        form.post(route('tickets.store'))
     }
 };
 

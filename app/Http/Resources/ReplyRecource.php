@@ -15,8 +15,10 @@ class ReplyRecource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'author' => new ReplyAuthorResource($this->whenLoaded('author')),
-            'agent' => $this->whenLoaded('agent'),
+//            'ticket' => new TicketRecource($this->whenLoaded('ticket')),
+//            'agent' => $this->whenLoaded('agent'),
             'attachment' => $this->has_attachments ? $this->getMedia('*')[0]->getFullUrl() : false,
             'content' => $this->content,
             'created_at' => $this->created_at,

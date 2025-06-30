@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\ReplyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,5 +37,14 @@ class Reply extends Model implements HasMedia
     public function agent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agent_id', 'id');
+    }
+
+    /**
+     * @return void
+     */
+    public function markAsRead(): void
+    {
+        $this->seen_at = Carbon::now();
+        $this->save();
     }
 }

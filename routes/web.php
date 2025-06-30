@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\TemporaryUploadController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +33,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     // Temporary upload route
     Route::post('/temporary-upload', [TemporaryUploadController::class, 'store'])->name('temporary-upload');
+
 });
 
 
@@ -48,6 +50,9 @@ Route::middleware(['auth', 'verified', 'role:super-admin|admin|staff'])
         Route::resource("employees", EmployeeController::class)->scoped(['employee' => "slug"]);
 
     });
+
+// Notification mark as read route
+Route::middleware(['auth'])->post('notifications/mark-as-read', [NotificationController::class, 'markAsReadByReplyId'])->name('notifications.mark-as-read');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => $user ? [
                 'user' => $user,
                 'roles' => $user->getRoleNames(),
+                'notifications' => $user->unreadNotifications,
             ] : [],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

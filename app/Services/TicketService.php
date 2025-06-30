@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Models\Ticket;
 use App\Data\ReplyData;
@@ -86,15 +87,14 @@ class TicketService implements TicketServiceInterface
                 $this->cleanupTemporaryFile($reply, UploadingFileData::fromRequest($request));
             }
 
-            $ticket = $reply->ticket;
-            $user = $ticket->submitter;
-            CreateNewTicketEvent::dispatch($ticket, $user);
+            CreateNewTicketEvent::dispatch($reply, $reply->ticket->submitter);
 
             DB::commit();
 
             return true;
         } catch (\Throwable $th) {
             DB::rollback();
+            Log::error($th->getMessage());
 
             return $th;
         }
