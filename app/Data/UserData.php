@@ -20,8 +20,8 @@ class UserData extends Data
         #[Required, StringType]
         public string $email,
 
-        #[Required, StringType]
-        public string $role,
+        #[Nullable, StringType]
+        public ?string $role,
 
         #[StringType, Nullable]
         public ?string $password,
