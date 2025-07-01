@@ -49,7 +49,7 @@ COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Install Node dependencies and build assets
-RUN npm ci --no-audit --no-fund
+RUN npm install
 RUN npm run build
 
 # Set permissions securely
@@ -73,9 +73,5 @@ EXPOSE 8000
 
 # Use non-root user for running the application
 USER www-data
-
-# Healthcheck to ensure the application is running
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
